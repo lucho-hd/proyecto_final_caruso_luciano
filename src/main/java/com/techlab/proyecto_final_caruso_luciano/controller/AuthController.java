@@ -1,5 +1,6 @@
 package com.techlab.proyecto_final_caruso_luciano.controller;
 
+import com.techlab.proyecto_final_caruso_luciano.dto.LoginDto;
 import com.techlab.proyecto_final_caruso_luciano.dto.UserDTO;
 import com.techlab.proyecto_final_caruso_luciano.model.User;
 import com.techlab.proyecto_final_caruso_luciano.service.UserService;
@@ -22,6 +23,12 @@ public class AuthController {
         this.userService = userService;
     }
 
+    /**
+     * Registro de un usuario
+     *
+     * @param userDTO
+     * @return
+     */
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDTO) {
         try {
@@ -35,6 +42,23 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of(
                     "message", ex.getMessage()
             ));
+        }
+    }
+
+    /**
+     * Realiza el login del usuario
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginDto request)
+    {
+        try {
+            String token = userService.login(request.getEmail(), request.getPassword());
+            return ResponseEntity.ok(Map.of("token", token));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(401).body(Map.of("Erorr", ex.getMessage()));
         }
     }
 }

@@ -39,31 +39,4 @@ public class ProductController {
             return  ResponseEntity.status(404).body(new ApiResponseWithData<>("Producto no encontrado", null));
         }
     }
-
-    @PostMapping("/create")
-    public ResponseEntity<ApiResponseWithData<Product>> create(@Valid @RequestBody ProductDTO dto)
-    {
-        Product saved = productService.createProduct(dto);
-        return ResponseEntity.ok(new ApiResponseWithData<>("Producto creado exitosamente", saved));
-    }
-
-    @PutMapping("/{id}/update")
-    public ResponseEntity<ApiResponseWithData<?>> update(@PathVariable Long id, @Valid @RequestBody ProductDTO dto)
-    {
-        Optional<Product> updated = productService.updateProduct(id, dto);
-        if (updated.isPresent()) {
-            return ResponseEntity.ok(new ApiResponseWithData<>("Producto actualizado", updated.get()));
-        }
-        return ResponseEntity.status(404).body(new ApiResponseWithData<>("Producto no encontrado", null));
-    }
-
-    @DeleteMapping("/{id}/delete")
-    public ResponseEntity<ApiResponseWithData<String>> delete(@PathVariable Long id)
-    {
-        boolean deleted = productService.deleteProduct(id);
-        if (deleted) {
-            return ResponseEntity.ok(new ApiResponseWithData<>("Producto eliminado correctamente", null));
-        }
-        return ResponseEntity.status(404).body(new ApiResponseWithData<>("Producto no encontrado", null));
-    }
 }
