@@ -1,7 +1,11 @@
 package com.techlab.proyecto_final_caruso_luciano.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.Data;
 
+import java.util.Set;
+
+@Data
 public class ProductDTO {
 
     @NotBlank(message = "El nombre es obligatorio")
@@ -17,6 +21,9 @@ public class ProductDTO {
 
     @Min(value = 0, message = "El stock no puede ser negativo")
     private int stock;
+
+    @NotEmpty(message = "Debes de seleccionar al menos una categoría para el producto")
+    private Set<Long> categoryIds;
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

@@ -27,6 +27,12 @@ public class UserService {
         this.jwtUtil         = jwtUtil;
     }
 
+    /**
+     * Registra a un nuevo usuario con los datos proporcionados.
+     *
+     * @param dto - Datos del usuario enviados desde el Front.
+     * @return Usuario creado en la base de datos.
+     */
     public User registerUser(UserDTO dto)
     {
         if (userRepository.existsByEmail(dto.getEmail())) {
@@ -55,6 +61,13 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * Realiza el inicio de sesión de un usuario con sus credenciales (email y password).
+     *
+     * @param email - El email del usuario.
+     * @param rawPassword - La contraseña del usuario.
+     * @return - Usuario autenticado.
+     */
     public String login(String email, String rawPassword)
     {
         User user = userRepository.findByEmail(email)
@@ -76,11 +89,24 @@ public class UserService {
         return jwt;
     }
 
+    /**
+     * Realiza el cierre de la sesión del usuario autenticado.
+     *
+     * @param token - El token asociado al usuario autenticado.
+     */
+    public void logout(String token)
+    {
+        Token storedToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Token no encontrado"));
+        storedToken.setRevoked(true);
+        tokenRepository.save(storedToken);
+    }
+
 
     /**
-     * Trae a todos los usuarios desde la Base de datos
+     * Retorna a todos los usuarios
      *
-     * @return
+     * @return - Listado de usuarios.
      */
     public List<User> getAllUsers()
     {
@@ -90,8 +116,8 @@ public class UserService {
     /**
      * Trae los detalles de un usuario
      *
-     * @param id
-     * @return
+     * @param id El id del usuario.
+     * @return - Datos del usuario.
      */
     public Optional<User> getUserById(Long id)
     {

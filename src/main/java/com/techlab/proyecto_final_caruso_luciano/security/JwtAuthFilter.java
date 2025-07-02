@@ -1,5 +1,6 @@
 package com.techlab.proyecto_final_caruso_luciano.security;
 
+import com.techlab.proyecto_final_caruso_luciano.repository.TokenRepository;
 import com.techlab.proyecto_final_caruso_luciano.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,7 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.techlab.proyecto_final_caruso_luciano.service.UserDetailsServiceImpl;
+
 
 import java.io.IOException;
 
@@ -19,10 +20,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
+    private final TokenRepository tokenRepository;
 
-    public JwtAuthFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService) {
+    public JwtAuthFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, TokenRepository tokenRepository) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.tokenRepository = tokenRepository;
     }
 
     @Override
@@ -44,7 +47,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             var userDetails = userDetailsService.loadUserByUsername(email);
 
-            if (jwtUtil.isTokenValid(token)) {
+            var storedTokenOpt = tokenRepository.findByToken(token);
+
+            if (storedTokenOpt.isPresent() && !storedTokenOpt.get().isRevoked() && jwtUtil.isTokenValid(token)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,

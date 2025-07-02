@@ -23,6 +23,12 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    /**
+     *
+     * @param email - El email del usuario.
+     * @param role - El rol del usuario.
+     * @return - Token
+     */
     public String generateToken(String email, String role)
     {
         return Jwts.builder()
@@ -34,6 +40,11 @@ public class JwtUtil {
                 .compact();
     }
 
+    /**
+     *
+     * @param token - Token
+     * @return - Retorna true si el token o false en caso contrario.
+     */
     public boolean isTokenValid(String token)
     {
         try {
@@ -47,8 +58,18 @@ public class JwtUtil {
         }
     }
 
+    /**
+     * Extrae el email del usuario del token.
+     *
+     * @param token - El token proporcionado.
+     * @return - El email del usuario.
+     */
     public String extractEmail(String token)
     {
+        if (token == null || token.split("\\.").length != 3) {
+            throw new MalformedJwtException("Formato de token inválido");
+        }
+
         return Jwts.parserBuilder()
                 .setSigningKey(getSigninKey())
                 .build()
@@ -57,6 +78,11 @@ public class JwtUtil {
                 .getSubject();
     }
 
+    /**
+     *
+     * @param token - El token.
+     * @return - El rol del usuario.
+     */
     public String extractRole(String token)
     {
         return Jwts.parserBuilder()

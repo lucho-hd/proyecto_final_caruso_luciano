@@ -21,12 +21,25 @@ public class AdminProductController {
         this.productService = productService;
     }
 
+    /**
+     * Crea un nuevo producto.
+     *
+     * @param dto - Datos del producto a crear recibidos desde el Front.
+     * @return - Producto creado.
+     */
     @PostMapping("/create")
     public ResponseEntity<ApiResponseWithData<Product>> create(@Valid @RequestBody ProductDTO dto) {
         Product saved = productService.createProduct(dto);
         return ResponseEntity.ok(new ApiResponseWithData<>("Producto creado exitosamente", saved));
     }
 
+    /**
+     * Edita los datos de un producto.
+     *
+     * @param id - Id del producto a editar.
+     * @param dto - Datos recibidos desde el Front.
+     * @return - Producto editado
+     */
     @PutMapping("/{id}/update")
     public ResponseEntity<ApiResponseWithData<Product>> update(@PathVariable Long id, @Valid @RequestBody ProductDTO dto) {
         Optional<Product> updated = productService.updateProduct(id, dto);
@@ -37,6 +50,12 @@ public class AdminProductController {
         );
     }
 
+    /**
+     * Elimina los datos de un producto.
+     *
+     * @param id - El id del producto a eliminar.
+     * @return - Retorna mensaje de éxito al eliminar o 404 en caso de no encotrar el producto a eliminar.
+     */
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<ApiResponseWithData<String>> delete(@PathVariable Long id) {
         boolean deleted = productService.deleteProduct(id);

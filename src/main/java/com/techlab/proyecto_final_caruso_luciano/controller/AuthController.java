@@ -5,11 +5,9 @@ import com.techlab.proyecto_final_caruso_luciano.dto.UserDTO;
 import com.techlab.proyecto_final_caruso_luciano.model.User;
 import com.techlab.proyecto_final_caruso_luciano.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -24,10 +22,10 @@ public class AuthController {
     }
 
     /**
-     * Registro de un usuario
+     * Crea un nuevo usuario en la BD.
      *
-     * @param userDTO
-     * @return
+     * @param userDTO - Los datos del usuario provenientes del front.
+     * @return - Registro del usuario.
      */
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDTO) {
@@ -38,7 +36,6 @@ public class AuthController {
                     "user", Map.of("id", user.getId(), "email", user.getEmail())
             ));
         } catch (IllegalArgumentException ex) {
-            // Este error lo maneja directamente el controller
             return ResponseEntity.badRequest().body(Map.of(
                     "message", ex.getMessage()
             ));
@@ -48,8 +45,8 @@ public class AuthController {
     /**
      * Realiza el login del usuario
      *
-     * @param request
-     * @return
+     * @param request - Los datos del usuario para iniciar su sesión.
+     * @return - Login del usuario.
      */
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginDto request)
@@ -59,6 +56,23 @@ public class AuthController {
             return ResponseEntity.ok(Map.of("token", token));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(401).body(Map.of("Erorr", ex.getMessage()));
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout(@RequestHeader("Authorization") String authHeader)
+    {
+        if (authHeader == null || !authHeader.startsWith("Bearer")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Token inválido"));
+        }
+
+        String token = authHeader.substring(7);
+
+        try {
+            userService.logout(token);
+            return ResponseEntity.ok(Map.of("message", "¡Sesión cerrada exitosamente!"));
+        } catch (IllegalArgumentException e) {
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         }
     }
 }

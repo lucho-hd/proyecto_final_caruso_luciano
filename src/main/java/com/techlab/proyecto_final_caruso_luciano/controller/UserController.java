@@ -22,7 +22,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    // Ver que onda esto...
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/list")
     public ResponseEntity<ApiResponseWithData<List<User>>> getAllUsers()
