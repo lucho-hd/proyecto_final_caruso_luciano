@@ -1,5 +1,6 @@
 package com.techlab.proyecto_final_caruso_luciano.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -7,7 +8,9 @@ import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -38,5 +41,9 @@ public class Product {
     )
 
     private Set<Category> categories = new HashSet<>();
+
+    @ManyToMany(mappedBy = "products")
+    @JsonIgnore
+    private List<Order> orders = new ArrayList<>();
 }
 
