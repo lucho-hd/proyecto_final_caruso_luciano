@@ -34,6 +34,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+
+        String path = request.getRequestURI();
+        System.out.println("🛡️ Filtro JWT: request URI -> " + path);
+
+        if (path.equals("/uploads") || path.startsWith("/uploads/")) {
+            System.out.println("✅ Ruta pública detectada, saltando filtro JWT");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -57,9 +67,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                logger.warn("JWT Filter - Token inválido o revocado para el usuario: {}");
             }
+        } else {
+            logger.info("JWT Filter - Email es nulo o ya hay autenticación en contexto");
         }
-
         filterChain.doFilter(request, response);
     }
 }

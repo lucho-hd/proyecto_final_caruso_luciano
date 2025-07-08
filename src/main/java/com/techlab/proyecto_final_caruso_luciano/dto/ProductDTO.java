@@ -9,11 +9,10 @@ import java.util.Set;
 public class ProductDTO {
 
     @NotBlank(message = "El nombre es obligatorio")
-    @Size(min = 2, max = 50)
+    @Size(min = 2, max = 100)
     private String name;
 
     @NotBlank(message = "La descripción no puede quedar vacía")
-    @Size(max = 255, message = "La descripción tiene un máximo de 255 caracteres")
     private String description;
 
     @Positive(message = "El precio debe ser mayor a 0")

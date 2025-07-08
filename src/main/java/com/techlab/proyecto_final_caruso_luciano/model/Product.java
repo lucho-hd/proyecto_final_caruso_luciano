@@ -24,9 +24,11 @@ public class Product {
 
     private String name;
 
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String description;
 
-//    private String image_url;
+    private String imageUrl;
 
     private double price;
 

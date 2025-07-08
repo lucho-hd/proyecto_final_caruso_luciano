@@ -7,8 +7,15 @@ import com.techlab.proyecto_final_caruso_luciano.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin/products")
@@ -33,10 +40,42 @@ public class AdminProductController {
         return ResponseEntity.ok(new ApiResponseWithData<>("Producto creado exitosamente", saved));
     }
 
+    @PostMapping("/{id}/upload-image")
+    public ResponseEntity<?> uploadImage(@PathVariable Long id, @RequestParam("image") MultipartFile file) throws IOException {
+        Optional<Product> optionalProduct = productService.getProductById(id);
+        if (optionalProduct.isEmpty()) {
+            return ResponseEntity.status(404).body("Producto no encontrado");
+        }
+
+        Product product = optionalProduct.get();
+
+        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+
+        // Ruta absoluta para uploads, se puede cambiar si querés otra ubicación
+        Path uploadDir = Paths.get("uploads").toAbsolutePath();
+
+        // Crear la carpeta uploads si no existe
+        if (!Files.exists(uploadDir)) {
+            Files.createDirectories(uploadDir);
+        }
+
+        Path filePath = uploadDir.resolve(fileName);
+
+        // Copiar el archivo al directorio uploads
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        // Guardar la URL absoluta hardcodeada (ajustá el dominio si cambia)
+        product.setImageUrl("http://localhost:8081/uploads/" + fileName);
+
+        productService.save(product);
+
+        return ResponseEntity.ok("¡Imagen subida correctamente!");
+    }
+
     /**
      * Edita los datos de un producto.
      *
-     * @param id - Id del producto a editar.
+     * @param id  - Id del producto a editar.
      * @param dto - Datos recibidos desde el Front.
      * @return - Producto editado
      */

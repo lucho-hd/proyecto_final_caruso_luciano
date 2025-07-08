@@ -7,6 +7,10 @@ import com.techlab.proyecto_final_caruso_luciano.repository.CategoryRepository;
 import com.techlab.proyecto_final_caruso_luciano.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +46,10 @@ public class ProductService {
     public Optional<Product> getProductById(Long id)
     {
         return productRepository.findById(id);
+    }
+
+    public Product save(Product product) {
+        return productRepository.save(product);
     }
 
     /**
@@ -101,7 +109,24 @@ public class ProductService {
      * @return - Producto eliminado.
      */
     public boolean deleteProduct(Long id) {
-        if (productRepository.existsById(id)) {
+        Optional<Product> optionalProduct = productRepository.findById(id);
+
+        if (optionalProduct.isPresent()) {
+            Product product = optionalProduct.get();
+
+            String imageUrl = product.getImageUrl();
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                try {
+                    // Extraer el nombre del archivo de la URL
+                    String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+                    Path imagePath = Paths.get("uploads").resolve(fileName);
+
+                    Files.deleteIfExists(imagePath); // Borra el archivo si existe
+                    System.out.println("🗑️ Imagen eliminada del disco: " + imagePath);
+                } catch (IOException e) {
+                    System.err.println("⚠️ Error al eliminar imagen: " + e.getMessage());
+                }
+            }
             productRepository.deleteById(id);
             return true;
         }
