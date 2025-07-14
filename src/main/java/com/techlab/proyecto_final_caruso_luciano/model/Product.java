@@ -44,8 +44,8 @@ public class Product {
 
     private Set<Category> categories = new HashSet<>();
 
-    @ManyToMany(mappedBy = "products")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<Order> orders = new ArrayList<>();
+    private List<OrderProduct> orderProducts = new ArrayList<>();
 }
 

@@ -21,8 +21,15 @@ public class OrderResponseDTO
         this.total = order.getTotal();
         this.state = order.getState();
         this.date = order.getDate();
-        this.products = order.getProducts().stream()
-                .map(ProductSummaryDTO::new)
+
+        this.products = order.getOrderProducts().stream()
+                .map(op -> new ProductSummaryDTO(
+                        op.getProduct().getId(),
+                        op.getProduct().getName(),
+                        op.getProduct().getPrice(),
+                        op.getQuantity()
+                ))
                 .toList();
     }
 }
+

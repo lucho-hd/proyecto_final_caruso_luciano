@@ -11,10 +11,4 @@ public class ProductSummaryDTO {
     private String name;
     private double price;
     private int quantity;
-
-    public ProductSummaryDTO(Product product) {
-        this.id = product.getId();
-        this.name = product.getName();
-        this.price = product.getPrice();
-    }
 }
