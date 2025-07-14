@@ -13,7 +13,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
-@CrossOrigin(origins = "*")
 public class ProductController {
 
     private final ProductService productService;
@@ -23,9 +22,15 @@ public class ProductController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<ApiResponseWithData<List<Product>>> getAllProducts()
+    public ResponseEntity<ApiResponseWithData<List<Product>>> getAllProducts(@RequestParam(value = "category", required = false) String categoryName)
     {
-        List<Product> products = productService.getAllProducts();
+        List<Product> products;
+
+        if (categoryName != null && !categoryName.isBlank()) {
+            products = productService.getProductsByCategory(categoryName);
+        } else {
+            products = productService.getAllProducts();
+        }
         return ResponseEntity.ok(new ApiResponseWithData<>("Listado de productos", products));
     }
 

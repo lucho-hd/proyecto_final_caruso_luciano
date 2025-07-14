@@ -15,4 +15,14 @@ public class OrderResponseDTO
     private double total;
     private Order.OrderState state;
     private LocalDateTime date;
+
+    public OrderResponseDTO(Order order) {
+        this.id = order.getId();
+        this.total = order.getTotal();
+        this.state = order.getState();
+        this.date = order.getDate();
+        this.products = order.getProducts().stream()
+                .map(ProductSummaryDTO::new)
+                .toList();
+    }
 }

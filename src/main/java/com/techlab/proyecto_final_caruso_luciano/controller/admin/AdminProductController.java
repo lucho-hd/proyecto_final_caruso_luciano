@@ -19,7 +19,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin/products")
-@CrossOrigin(origins = "*")
 public class AdminProductController {
 
     private final ProductService productService;
@@ -51,20 +50,16 @@ public class AdminProductController {
 
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
 
-        // Ruta absoluta para uploads, se puede cambiar si querés otra ubicación
         Path uploadDir = Paths.get("uploads").toAbsolutePath();
 
-        // Crear la carpeta uploads si no existe
         if (!Files.exists(uploadDir)) {
             Files.createDirectories(uploadDir);
         }
 
         Path filePath = uploadDir.resolve(fileName);
 
-        // Copiar el archivo al directorio uploads
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        // Guardar la URL absoluta hardcodeada (ajustá el dominio si cambia)
         product.setImageUrl("http://localhost:8081/uploads/" + fileName);
 
         productService.save(product);

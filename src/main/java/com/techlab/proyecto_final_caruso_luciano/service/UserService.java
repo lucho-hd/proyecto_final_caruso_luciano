@@ -7,6 +7,7 @@ import com.techlab.proyecto_final_caruso_luciano.model.User.Role;
 import com.techlab.proyecto_final_caruso_luciano.repository.TokenRepository;
 import com.techlab.proyecto_final_caruso_luciano.repository.UserRepository;
 import com.techlab.proyecto_final_caruso_luciano.security.JwtUtil;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -87,6 +88,11 @@ public class UserService {
         tokenRepository.save(token);
 
         return jwt;
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
     }
 
     /**

@@ -9,10 +9,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final UserService userService;
@@ -49,15 +51,31 @@ public class AuthController {
      * @return - Login del usuario.
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginDto request)
-    {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginDto request) {
         try {
+            // Autenticar y generar token
             String token = userService.login(request.getEmail(), request.getPassword());
-            return ResponseEntity.ok(Map.of("token", token));
+
+            // Obtener el usuario autenticado (ya lo tenés validado)
+            User user = userService.findByEmail(request.getEmail());
+
+            // Crear una respuesta con token y datos del usuario
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("user", Map.of(
+                    "_id", user.getId(),
+                    "name", user.getName(),
+                    "surname", user.getSurname(),
+                    "role", user.getRole()
+            ));
+
+            return ResponseEntity.ok(response);
+
         } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(401).body(Map.of("Erorr", ex.getMessage()));
+            return ResponseEntity.status(401).body(Map.of("error", ex.getMessage()));
         }
     }
+
 
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(@RequestHeader("Authorization") String authHeader)

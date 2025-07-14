@@ -13,7 +13,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin/categories")
-@CrossOrigin(origins = "*")
 public class AdminCategoriesController {
 
     private final CategoryService categoryService;

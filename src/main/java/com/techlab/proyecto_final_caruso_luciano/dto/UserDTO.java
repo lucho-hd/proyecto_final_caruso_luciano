@@ -1,5 +1,6 @@
 package com.techlab.proyecto_final_caruso_luciano.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 
 public class UserDTO {
@@ -16,6 +17,7 @@ public class UserDTO {
     @Email(message = "Formato de email inválido")
     private String email;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String role = "USER";
 
     @NotBlank(message = "La contraseña es obligatoria")

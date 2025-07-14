@@ -37,6 +37,11 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public List<Product> getProductsByCategory(String categoryName)
+    {
+        return productRepository.findByCategoriesNameIgnoreCase(categoryName);
+    }
+
     /**
      * Devuelve el detalle de un producto mediante su id
      *
@@ -117,11 +122,10 @@ public class ProductService {
             String imageUrl = product.getImageUrl();
             if (imageUrl != null && !imageUrl.isEmpty()) {
                 try {
-                    // Extraer el nombre del archivo de la URL
                     String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
                     Path imagePath = Paths.get("uploads").resolve(fileName);
 
-                    Files.deleteIfExists(imagePath); // Borra el archivo si existe
+                    Files.deleteIfExists(imagePath);
                     System.out.println("🗑️ Imagen eliminada del disco: " + imagePath);
                 } catch (IOException e) {
                     System.err.println("⚠️ Error al eliminar imagen: " + e.getMessage());

@@ -1,5 +1,6 @@
 package com.techlab.proyecto_final_caruso_luciano.dto.response;
 
+import com.techlab.proyecto_final_caruso_luciano.model.Product;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -8,7 +9,12 @@ import lombok.Data;
 public class ProductSummaryDTO {
     private Long id;
     private String name;
-    private String description;
     private double price;
-    private int stock;
+    private int quantity;
+
+    public ProductSummaryDTO(Product product) {
+        this.id = product.getId();
+        this.name = product.getName();
+        this.price = product.getPrice();
+    }
 }

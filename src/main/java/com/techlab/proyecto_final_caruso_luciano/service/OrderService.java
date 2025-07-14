@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -22,11 +24,10 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
-    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, UserRepository userRepository)
-    {
-        this.orderRepository   = orderRepository;
+    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, UserRepository userRepository) {
+        this.orderRepository = orderRepository;
         this.productRepository = productRepository;
-        this.userRepository    = userRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -35,19 +36,40 @@ public class OrderService {
      * @param dto - Datos de la orden.
      * @return - Retorna la orden creada.
      */
-    public OrderResponseDTO createOrder(OrderDTO dto)
-    {
-        List<Product> products = productRepository.findAllById(dto.getProductsIds());
+    public OrderResponseDTO createOrder(OrderDTO dto) {
+        Map<Long, Integer> quantityMap = dto.getProducts().stream()
+                .collect(Collectors.toMap(
+                        product -> product.getProductId(),
+                        product -> product.getQuantity()
+                ));
 
-        if (products.size() != dto.getProductsIds().size()) {
+        List<Product> products = productRepository.findAllById(quantityMap.keySet());
+
+        if (products.size() != quantityMap.size()) {
             throw new IllegalArgumentException("Uno o más productos no existen");
         }
+
+        for (Product product : products) {
+            int requestedQty = quantityMap.get(product.getId());
+            if (requestedQty > product.getStock()) {
+                throw new IllegalArgumentException(
+                        "El producto \"" + product.getName() + "\" no tiene suficiente stock. " +
+                                "Disponible: " + product.getStock() + ", pedido: " + requestedQty
+                );
+            }
+
+            product.setStock(product.getStock() - requestedQty);
+        }
+
+        productRepository.saveAll(products);
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
-        double total = products.stream().mapToDouble(Product::getPrice).sum();
+        double total = products.stream()
+                .mapToDouble(p -> p.getPrice() * quantityMap.get(p.getId()))
+                .sum();
 
         Order order = new Order();
         order.setProducts(products);
@@ -62,10 +84,10 @@ public class OrderService {
                 .map(p -> new ProductSummaryDTO(
                         p.getId(),
                         p.getName(),
-                        p.getDescription(),
-                        p.getPrice(),
-                        p.getStock()
-                )).toList();
+                        p.getStock(),
+                        quantityMap.get(p.getId())
+                ))
+                .toList();
 
         return new OrderResponseDTO(
                 savedOrder.getId(),
@@ -76,3 +98,4 @@ public class OrderService {
         );
     }
 }
+
